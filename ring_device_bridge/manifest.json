@@ -1,0 +1,11 @@
+{
+  "domain": "ring_device_bridge",
+  "name": "Ring Device Bridge",
+  "description": "Ring device API bridge",
+  "documentation": "https://www.example.com",
+  "dependencies": [],
+  "codeowners": [],
+  "requirements": [],
+  "iot_class": "cloud_polling",
+  "version": "0.1.0"
+}
