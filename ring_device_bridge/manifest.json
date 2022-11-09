@@ -1,11 +1,13 @@
 {
   "domain": "ring_device_bridge",
   "name": "Ring Device Bridge",
-  "description": "Ring device API bridge",
-  "documentation": "https://www.example.com",
-  "dependencies": [],
-  "codeowners": [],
+  "config_flow": true,
+  "documentation": "https://www.home-assistant.io/integrations/ring_device_bridge",
   "requirements": [],
-  "iot_class": "cloud_polling",
+  "codeowners": ["@anlawande"],
+  "dependencies": ["network"],
+  "quality_scale": "platinum",
+  "iot_class": "local_polling",
+  "loggers": [],
   "version": "0.1.0"
 }
