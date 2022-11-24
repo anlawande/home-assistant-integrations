@@ -37,5 +37,8 @@ class CoordinatedRingDeviceEntity(CoordinatorEntity[RingDeviceDataUpdateCoordina
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
-        self._attr_is_on = self.coordinator.data["sensors"][self.device.device_id].state[self.state_identifier]
+        device = self.coordinator.get_device_data(self.device.device_id)
+        if device is None:
+            return
+        self._attr_is_on = device.state[self.state_identifier]
         self.async_write_ha_state()

@@ -3,26 +3,34 @@ from typing import Dict
 
 
 class RingDeviceType(Enum):
-    RING_CONTACT_SENSOR=1
-    RING_SMART_LOCK=1
+    RING_CONTACT_SENSOR = 1
+    RING_SMART_LOCK = 2
 
 
 class RingDevice:
     device_type: RingDeviceType
 
-    def __init__(self):
-        self.host: str = "192.0.0.1"
-        self.mac: str = "aaaa:bbbb:cccc:dddd::e"
-        self.device_id: str = "aaaa:bbbb:cccc:dddd::e"
-        self.model: str = "Ring Contact Sensor (2nd Gen)"
-        self.alias: str = "Front door"
-        self.state: Dict = {}
+    def __init__(self, **kwargs):
+        self.host: str = kwargs.get("host", "192.0.0.1")
+        self.mac: str = kwargs.get("mac", "aaaa:bbbb:cccc:dddd::e")
+        self.device_id: str = kwargs.get("device_id", "aaaa:bbbb:cccc:dddd::e")
+        self.model: str = kwargs.get("model", "Ring Contact Sensor (2nd Gen)")
+        self.alias: str = kwargs.get("alias", "Front door")
+        self.state: Dict = kwargs.get("state", {})
 
 
 class RingContactSensor(RingDevice):
-    def __init__(self):
-        super(RingContactSensor, self).__init__()
+    def __init__(self, **kwargs):
+        super(RingContactSensor, self).__init__(**kwargs)
+        self.model = "Ring Contact Sensor (2nd Gen)"
         self.device_type = RingDeviceType.RING_CONTACT_SENSOR
+
+
+class RingLock(RingDevice):
+    def __init__(self, **kwargs):
+        super(RingLock, self).__init__(**kwargs)
+        self.model = "Shlage Connect"
+        self.device_type = RingDeviceType.RING_SMART_LOCK
 
 
 class RingDeviceException(Exception):

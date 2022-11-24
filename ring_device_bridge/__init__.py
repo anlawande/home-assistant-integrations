@@ -1,13 +1,11 @@
 """Component to embed TP-Link smart home devices."""
 from __future__ import annotations
 
-import asyncio
 from datetime import timedelta
-from typing import Any
 from logging import getLogger
+from typing import Any
 
 from homeassistant import config_entries
-from homeassistant.components import network
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     CONF_HOST,
@@ -18,12 +16,13 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import device_registry as dr, discovery_flow
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.typing import ConfigType
 
 from .const import DOMAIN, PLATFORMS
 from .coordinator import RingDeviceDataUpdateCoordinator, RingDeviceException
-from .ring import RingDevice, Discover
+from .ring import RingApi, RingDevice, Discover
 
 DISCOVERY_INTERVAL = timedelta(minutes=15)
 
@@ -62,6 +61,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the TP-Link component."""
     hass.data[DOMAIN] = {}
     RingDeviceDataUpdateCoordinator.create(hass)
+    RingApi.set_session(async_get_clientsession(hass))
 
     if discovered_devices := await async_discover_devices(hass):
         async_trigger_discovery(hass, discovered_devices)

@@ -1,9 +1,11 @@
 """Platform for sensor integration."""
 from __future__ import annotations
 
-from homeassistant.components.binary_sensor import BinarySensorEntity, BinarySensorDeviceClass
+from homeassistant.components.lock import LockEntity
+from homeassistant.components.sensor import SensorEntity, SensorDeviceClass
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.core import callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DOMAIN
@@ -23,38 +25,31 @@ async def async_setup_entry(
     await coordinator.async_config_entry_first_refresh()
 
     device = coordinator.get_device_data(device_id)
-    if device is None:
-        return
-    if device.device_type != RingDeviceType.RING_CONTACT_SENSOR:
+    if device is None or device.device_type != RingDeviceType.RING_SMART_LOCK:
         return
 
-    entities: list = [ContactSensorEntity(device, coordinator, "contact"),
-                      ContactBypassSensorEntity(device, coordinator, "bypassed")]
+    entities: list = [LockSensorEntity(device, coordinator, "locked")]
 
     async_add_entities(entities)
 
 
-class ContactSensorEntity(CoordinatedRingDeviceEntity, BinarySensorEntity):
+class LockSensorEntity(CoordinatedRingDeviceEntity, LockEntity):
     """Representation of a Sensor."""
 
-    _attr_device_class = BinarySensorDeviceClass.WINDOW
+    _attr_device_class = SensorDeviceClass.BATTERY
 
     def __init__(self, device: RingDevice, coordinator: RingDeviceDataUpdateCoordinator, state_identifier: str):
         """Pass coordinator to CoordinatorEntity."""
         super().__init__(device, coordinator)
-        self._attr_unique_id = f"{device.device_id}_contact"
-        self._attr_name = f"{device.alias} Contact Sensor"
+        self._attr_unique_id = f"{device.device_id}_lock"
+        self._attr_name = f"{device.alias} Lock"
         self.state_identifier = state_identifier
 
-
-class ContactBypassSensorEntity(CoordinatedRingDeviceEntity, BinarySensorEntity):
-    """Representation of a Sensor."""
-
-    _attr_device_class = BinarySensorDeviceClass.SAFETY
-
-    def __init__(self, device: RingDevice, coordinator: RingDeviceDataUpdateCoordinator, state_identifier: str):
-        """Pass coordinator to CoordinatorEntity."""
-        super().__init__(device, coordinator)
-        self._attr_unique_id = f"{device.device_id}_contact_bypass"
-        self._attr_name = f"{device.alias} Contact Sensor Bypass"
-        self.state_identifier = state_identifier
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        """Handle updated data from the coordinator."""
+        device = self.coordinator.get_device_data(self.device.device_id)
+        if device is None:
+            return
+        self._attr_is_locked = device.state[self.state_identifier]
+        self.async_write_ha_state()
