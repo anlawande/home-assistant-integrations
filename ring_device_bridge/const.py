@@ -19,4 +19,4 @@ CONF_STRIP: Final = "strip"
 CONF_SWITCH: Final = "switch"
 CONF_SENSOR: Final = "sensor"
 
-PLATFORMS: Final = [Platform.BINARY_SENSOR, Platform.SENSOR, Platform.LOCK]
+PLATFORMS: Final = [Platform.BINARY_SENSOR, Platform.SENSOR, Platform.LOCK, Platform.ALARM_CONTROL_PANEL]

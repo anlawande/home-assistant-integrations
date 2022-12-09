@@ -1,8 +1,8 @@
 import aiohttp
 from datetime import datetime
 
-from .ring_device import RingContactSensor, RingLock
-
+from .ring_device import RingContactSensor, RingLock, RingAlarm
+from .token import api_token
 
 class MyAPI:
     session: aiohttp.ClientSession
@@ -26,7 +26,7 @@ class MyAPI:
             return cls.data_cache
         cls.fetch_in_progress = True
         try:
-            async with cls.session.get('http://localhost:3123/entities') as resp:
+            async with cls.session.get(f"http://localhost:3123/entities?apiToken={api_token}") as resp:
                 data = await resp.json()
                 cls.data_cache = data
                 cls.last_fetch_ts = datetime.now().timestamp()
@@ -35,6 +35,11 @@ class MyAPI:
         finally:
             cls.fetch_in_progress = False
             return cls.data_cache
+
+    @classmethod
+    async def set_mode(cls, mode: str) -> None:
+        async with cls.session.post(f"http://localhost:3123/alarm?apiToken={api_token}", json={"mode": mode}) as resp:
+            assert resp.status == 200
 
 
 class RingApi:
@@ -47,6 +52,7 @@ class RingApi:
         ring_data = await MyAPI.fetch_data()
         ring_data_sensors = ring_data["sensors"]
         ring_data_locks = ring_data["locks"]
+        ring_data_alarms = ring_data["alarms"]
         ring_sensors = {}
         for mac, device in ring_data_sensors.items():
             sensor = RingContactSensor(mac=mac, host=device["host"], device_id=mac,
@@ -59,9 +65,16 @@ class RingApi:
                             alias=device["name"], state=device["state"])
             ring_locks[mac] = lock
 
+        ring_alarms = {}
+        for mac, device in ring_data_alarms.items():
+            alarm = RingAlarm(mac=mac, host=device["host"], device_id=mac,
+                              alias="Ring Security Panel", state=device["alarmMode"])
+            ring_alarms[mac] = alarm
+
         return {
             "sensors": ring_sensors,
             "locks": ring_locks,
+            "alarms": ring_alarms,
         }
 
     @classmethod
@@ -83,3 +96,8 @@ class RingApi:
                 pass
 
         return None
+
+    @classmethod
+    async def set_mode(cls, mode: str):
+        print("set_mode")
+        await MyAPI.set_mode(mode)

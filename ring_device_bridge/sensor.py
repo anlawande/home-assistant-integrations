@@ -12,7 +12,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from .const import DOMAIN
 from .coordinator import RingDeviceDataUpdateCoordinator
 from .entity import CoordinatedRingDeviceEntity
-from .ring import RingDevice
+from .ring import RingDevice, RingDeviceType
 
 logger = getLogger(__name__)
 
@@ -29,6 +29,8 @@ async def async_setup_entry(
 
     device = coordinator.get_device_data(device_id)
     if device is None:
+        return
+    if device.device_type not in [RingDeviceType.RING_SMART_LOCK, RingDeviceType.RING_CONTACT_SENSOR]:
         return
 
     entities: list = [ContactBatterySensorEntity(device, coordinator, "battery")]

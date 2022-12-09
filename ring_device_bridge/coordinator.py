@@ -58,7 +58,7 @@ class RingDeviceDataUpdateCoordinator(DataUpdateCoordinator):
             raise UpdateFailed(ex) from ex
 
     def get_device_data(self, device_id: str):
-        for data_type in ["sensors", "locks"]:
+        for data_type in ["sensors", "locks", "alarms"]:
             if device_id in self.data[data_type]:
                 return self.data[data_type][device_id]
 

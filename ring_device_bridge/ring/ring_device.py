@@ -5,6 +5,7 @@ from typing import Dict
 class RingDeviceType(Enum):
     RING_CONTACT_SENSOR = 1
     RING_SMART_LOCK = 2
+    RING_SECURITY_PANEL = 3
 
 
 class RingDevice:
@@ -31,6 +32,13 @@ class RingLock(RingDevice):
         super(RingLock, self).__init__(**kwargs)
         self.model = "Shlage Connect"
         self.device_type = RingDeviceType.RING_SMART_LOCK
+
+
+class RingAlarm(RingDevice):
+    def __init__(self, **kwargs):
+        super(RingAlarm, self).__init__(**kwargs)
+        self.model = "Ring Alarm Panel"
+        self.device_type = RingDeviceType.RING_SECURITY_PANEL
 
 
 class RingDeviceException(Exception):
