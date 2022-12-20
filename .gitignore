@@ -1,6 +1,5 @@
 /homeassistant/
 /.idea/
 /venv/
-ring_device_bridge/ring/token.py
 /ring-home-assistant-integration.iml
 sync.ps1

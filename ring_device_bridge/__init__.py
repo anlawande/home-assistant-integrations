@@ -5,17 +5,19 @@ from datetime import timedelta
 from logging import getLogger
 from typing import Any
 
+import voluptuous as vol
+
 from homeassistant import config_entries
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     CONF_HOST,
     CONF_MAC,
     CONF_NAME,
-    EVENT_HOMEASSISTANT_STARTED,
+    EVENT_HOMEASSISTANT_STARTED, CONF_API_TOKEN,
 )
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import ConfigEntryNotReady
-from homeassistant.helpers import device_registry as dr, discovery_flow
+from homeassistant.helpers import config_validation as cv, device_registry as dr, discovery_flow
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.typing import ConfigType
@@ -28,6 +30,11 @@ DISCOVERY_INTERVAL = timedelta(minutes=15)
 
 logger = getLogger(__name__)
 
+CONFIG_SCHEMA = vol.Schema({
+    DOMAIN: vol.Schema({
+        vol.Required(CONF_API_TOKEN): cv.string,
+    }, extra=vol.ALLOW_EXTRA),
+}, extra=vol.ALLOW_EXTRA)
 
 @callback
 def async_trigger_discovery(
@@ -62,6 +69,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     hass.data[DOMAIN] = {}
     RingDeviceDataUpdateCoordinator.create(hass)
     RingApi.set_session(async_get_clientsession(hass))
+    RingApi.set_api_token(config[DOMAIN][CONF_API_TOKEN])
 
     if discovered_devices := await async_discover_devices(hass):
         async_trigger_discovery(hass, discovered_devices)
