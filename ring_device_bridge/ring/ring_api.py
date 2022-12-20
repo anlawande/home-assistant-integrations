@@ -8,21 +8,20 @@ logger = logging.getLogger(__name__)
 
 class MyAPI:
     session: aiohttp.ClientSession
+    api_host_and_port: str
     api_token: str
     last_fetch_ts: float
     data_cache: any
     fetch_in_progress: bool
 
     @classmethod
-    def set_session(cls, session: aiohttp.ClientSession) -> None:
+    def configure_api(cls, session: aiohttp.ClientSession, api_host_and_port: str, api_token: str) -> None:
         cls.session = session
+        cls.api_host_and_port = api_host_and_port
+        cls.api_token = api_token
         cls.last_fetch_ts = datetime.now().timestamp()
         cls.data_cache = {}
         cls.fetch_in_progress = False
-
-    @classmethod
-    def set_api_token(cls, api_token: str):
-        cls.api_token = api_token
 
     @classmethod
     async def fetch_data(cls):
@@ -33,7 +32,7 @@ class MyAPI:
             return cls.data_cache
         cls.fetch_in_progress = True
         try:
-            async with cls.session.get(f"http://localhost:3123/entities?apiToken={cls.api_token}") as resp:
+            async with cls.session.get(f"http://{cls.api_host_and_port}/entities?apiToken={cls.api_token}") as resp:
                 data = await resp.json()
                 cls.data_cache = data
                 cls.last_fetch_ts = datetime.now().timestamp()
@@ -47,18 +46,14 @@ class MyAPI:
 
     @classmethod
     async def set_mode(cls, mode: str) -> None:
-        async with cls.session.post(f"http://localhost:3123/alarm?apiToken={cls.api_token}", json={"mode": mode}) as resp:
+        async with cls.session.post(f"http://{cls.api_host_and_port}/alarm?apiToken={cls.api_token}", json={"mode": mode}) as resp:
             assert resp.status == 200
 
 
 class RingApi:
     @classmethod
-    def set_session(cls, session: aiohttp.ClientSession) -> None:
-        MyAPI.set_session(session)
-
-    @classmethod
-    def set_api_token(cls, api_token: str) -> None:
-        MyAPI.set_api_token(api_token)
+    def configure_api(cls, session: aiohttp.ClientSession, api_host_and_port: str, api_token: str) -> None:
+        MyAPI.configure_api(session, api_host_and_port, api_token)
 
     @classmethod
     async def get_all_data(cls):

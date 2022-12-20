@@ -22,7 +22,7 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.typing import ConfigType
 
-from .const import DOMAIN, PLATFORMS
+from .const import DOMAIN, PLATFORMS, CONF_API_HOST_AND_PORT
 from .coordinator import RingDeviceDataUpdateCoordinator, RingDeviceException
 from .ring import RingApi, RingDevice, Discover
 
@@ -33,6 +33,7 @@ logger = getLogger(__name__)
 CONFIG_SCHEMA = vol.Schema({
     DOMAIN: vol.Schema({
         vol.Required(CONF_API_TOKEN): cv.string,
+        vol.Required(CONF_API_HOST_AND_PORT): cv.string,
     }, extra=vol.ALLOW_EXTRA),
 }, extra=vol.ALLOW_EXTRA)
 
@@ -68,8 +69,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the TP-Link component."""
     hass.data[DOMAIN] = {}
     RingDeviceDataUpdateCoordinator.create(hass)
-    RingApi.set_session(async_get_clientsession(hass))
-    RingApi.set_api_token(config[DOMAIN][CONF_API_TOKEN])
+    RingApi.configure_api(async_get_clientsession(hass), config[DOMAIN][CONF_API_HOST_AND_PORT], config[DOMAIN][CONF_API_TOKEN])
 
     if discovered_devices := await async_discover_devices(hass):
         async_trigger_discovery(hass, discovered_devices)

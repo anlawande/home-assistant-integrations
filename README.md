@@ -1,4 +1,7 @@
-## Ring Device Bridge Home Assistant Custom Integration
+# Home assistant integrations
+1. ring-device-bridge - Adds ring alarm compoents as entities in HA
+
+## Ring Device Bridge Integration
 This custom integration for home assistant adds the entities and devices exposed 
 via the `ring-device-bridge` API
 
@@ -33,9 +36,11 @@ via the `ring-device-bridge` API
 3. Add the following lines to your `configuration.yaml` file 
   ```
 ring_device_bridge:
+   api_host_and_port: "localhost:3123"
    api_token:
   ```
-3. Populate the api token with the same used in ring-device-bridge (`.env` file)
-4. Restart home assistant (if the UI complains about can't find custom component,
+3. Change the host and port config to point to the running ring-device-bridge API
+4. Populate the api token with the same used in ring-device-bridge (`.env` file)
+5. Restart home assistant (if the UI complains about can't find custom component,
    then you may need to force restart the process for the first time)
-5. The ring devices and entities should now be auto discovered and can be added individually
+6. The ring devices and entities should now be auto discovered and can be added individually

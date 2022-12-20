@@ -12,6 +12,8 @@ ATTR_CURRENT_POWER_W: Final = "current_power_w"
 ATTR_TODAY_ENERGY_KWH: Final = "today_energy_kwh"
 ATTR_TOTAL_ENERGY_KWH: Final = "total_energy_kwh"
 
+CONF_API_HOST_AND_PORT: str = "api_host_and_port"
+
 CONF_DIMMER: Final = "dimmer"
 CONF_DISCOVERY: Final = "discovery"
 CONF_LIGHT: Final = "light"
